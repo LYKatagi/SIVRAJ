@@ -1,0 +1,119 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging
+
+build/
+dist/
+*.egg-info/
+
+# Test / coverage
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Type checking
+
+.mypy_cache/
+.pyre/
+.ruff_cache/
+
+# IDEs
+
+.vscode/
+.idea/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+
+*.log
+logs/
+
+# Environment / secrets
+
+.env
+.env.*
+!.env.example
+
+# Local configuration
+
+config.local.*
+settings.local.*
+
+# Temporary files
+
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# SIVRAJ local data
+
+data/
+cache/
+models/
+recordings/
+
+```
+
+### `.gitattributes`
+
+:::writing{variant="document" id="21694"}
+# Normalize line endings
+* text=auto
+
+# Source code
+*.py text eol=lf
+*.pyw text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Configuration
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+
+# Shell scripts
+*.sh text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.wav binary
+*.mp3 binary
+*.mp4 binary
+*.exe binary
+*.dll binary
+*.zip binary
+```

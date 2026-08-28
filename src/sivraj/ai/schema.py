@@ -1,5 +1,5 @@
 from jsonschema import validate, ValidationError
-from src.sivraj.core.config import SCHEMA
+from sivraj.core.config import SCHEMA
 
 class Schema:
     @staticmethod

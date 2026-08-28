@@ -1,2 +1,2 @@
-from src.sivraj.ai import *
-from src.sivraj.core import *
+from sivraj.ai import *
+from sivraj.core import *

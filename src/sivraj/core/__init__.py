@@ -1,1 +1,1 @@
-from src.sivraj.core.config import *
+from sivraj.core.config import *

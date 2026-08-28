@@ -1,1 +1,1 @@
-from src.sivraj.ai.schema import *
+from sivraj.ai.schema import *

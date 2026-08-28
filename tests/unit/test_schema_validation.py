@@ -1,7 +1,7 @@
 
 import pytest
 
-from src.ai.schema import Schema
+from sivraj.ai.schema import Schema
 
 
 class TestSchemaValidation:

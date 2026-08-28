@@ -1,30 +1,32 @@
+import json
+
 from ollama import chat
 
+from sivraj.ai.schema import Schema
 from sivraj.core.config import MODEL, SCHEMA
 
 
 class OllamaClient:
-    def generate(self, prompt: str, system: str | None = None) -> str:
-        messages = []
+    def __init__(self, model: str = MODEL) -> None:
+        self.model = model
 
-        if system:
-            messages.append({
-                "role": "system",
-                "content": system,
-            })
-
-        messages.append({
-            "role": "user",
-            "content": prompt,
-        })
-
+    def generate(self, prompt: str) -> dict:
         response = chat(
-            model=MODEL,
-            messages=messages,
+            model=self.model,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt,
+                }
+            ],
             format=SCHEMA,
             options={
                 "temperature": 0,
             },
         )
 
-        return response.message.content
+        data = json.loads(response.message.content)
+
+        Schema.validate(data)
+
+        return data

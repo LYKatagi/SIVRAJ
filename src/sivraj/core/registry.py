@@ -21,7 +21,7 @@ class CommandRegistry:
             raise ValueError(f"Command already registered: {name}")
 
         self._commands[name] = command
-
+        
     def get(self, name: str) -> Command | None:
         """Retorna um comando registrado ou None caso não exista."""
         return self._commands.get(name)

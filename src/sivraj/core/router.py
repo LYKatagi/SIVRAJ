@@ -27,5 +27,5 @@ class CommandRouter:
         if command is None:
             raise ValueError(f"Unknown command: {command_name}")
 
-        return command(command_data)
+        return command.execute()
 

@@ -1,62 +1,78 @@
 
+
+from __future__ import annotations
+
 import json
+import sys
+from pathlib import Path
+
+# Allow running directly with:
+# py tests/test_all.py
+ROOT = Path(__file__).resolve().parents[1]
+
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from sivraj.ai.ollama import OllamaClient
 from sivraj.core.registry import CommandRegistry
 from sivraj.core.router import CommandRouter
+from sivraj.load.loader import CommandLoader
 
 
-def maps_command(data: dict) -> dict:
-    return {
-        "executed": True,
-        "command": "maps",
-        "show": data["show"],
-    }
-
-
-def open_app_command(data: dict) -> dict:
-    return {
-        "executed": True,
-        "command": "open_app",
-    }
-
-
-def system_command(data: dict) -> dict:
-    return {
-        "executed": True,
-        "command": "system",
-    }
-
-
-def main() -> None:
-    registry = CommandRegistry()
-
-    registry.register("maps", maps_command)
-    registry.register("open_app", open_app_command)
-    registry.register("system", system_command)
-
-    router = CommandRouter(registry)
-    ollama = OllamaClient()
-
+def print_header() -> None:
     print("╭────────────────────────────╮")
     print("│          S I V R A J       │")
     print("│      Integration Test      │")
     print("╰────────────────────────────╯")
     print()
-    print("Pipeline: Ollama → Schema → Router → Registry")
+    print("Pipeline:")
+    print("Input → Ollama → Schema → Router → Registry → Command")
     print("Digite 'exit' para sair.")
     print()
+
+
+def main() -> None:
+    print_header()
+
+    # Core components
+    registry = CommandRegistry()
+    router = CommandRouter(registry)
+
+    # Automatically load every command
+    loader = CommandLoader(registry)
+    loaded = loader.load()
+
+    print(f"📦 Commands loaded: {loaded}")
+
+    if loaded == 0:
+        print("⚠️ Nenhum comando foi carregado.")
+        return
+
+    print("📋 Registry:")
+
+    for name in registry._commands:
+        print(f"   ✓ {name}")
+
+    print()
+
+    # Ollama client
+    ollama = OllamaClient()
 
     while True:
         try:
             prompt = input("> ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\n")
+            break
 
-            if not prompt:
-                continue
+        if prompt.lower() == "exit":
+            print("👋 SIVRAJ encerrado.")
+            break
 
-            if prompt.lower() in {"exit", "quit"}:
-                break
+        if not prompt:
+            continue
 
+        try:
             print("\n🤖 Ollama...")
 
             data = ollama.generate(prompt)
@@ -70,11 +86,12 @@ def main() -> None:
                 )
             )
 
-            if data["cmd"] == "none":
+            command_name = data["cmd"]
+
+            if command_name == "none":
                 print("\n💬 Conversa:")
                 print(data["response"])
                 print()
-
                 continue
 
             print("\n🚦 Router...")
@@ -91,10 +108,6 @@ def main() -> None:
             )
 
             print()
-
-        except KeyboardInterrupt:
-            print("\n\nSIVRAJ encerrado.")
-            break
 
         except Exception as error:
             print(f"\n❌ TEST FAILED: {error}\n")

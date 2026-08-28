@@ -1,3 +1,4 @@
+MODEL = "qwen2.5-coder:7b"
 
 SCHEMA = {
     "type": "object",

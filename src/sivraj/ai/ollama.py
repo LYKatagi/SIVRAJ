@@ -1,3 +1,4 @@
+
 import json
 
 from ollama import chat
@@ -27,6 +28,8 @@ class OllamaClient:
 
         data = json.loads(response.message.content)
 
-        Schema.validate(data)
+        if not Schema.validate_data(data):
+            raise ValueError("Ollama returned an invalid SIVRAJ response")
 
         return data
+

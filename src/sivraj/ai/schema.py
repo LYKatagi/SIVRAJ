@@ -1,11 +1,19 @@
-from jsonschema import validate, ValidationError
+
+from jsonschema import ValidationError, validate
+
 from sivraj.core.config import SCHEMA
+
 
 class Schema:
     @staticmethod
-    def validate_data(data: dict) -> bool:
-        
-        validate(instance=data, schema=SCHEMA)
-        return True
-        
+    def validate_data(data) -> bool:
+        try:
+            validate(
+                instance=data,
+                schema=SCHEMA,
+            )
+            return True
+
+        except ValidationError:
+            return False
 

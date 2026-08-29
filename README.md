@@ -196,4 +196,4 @@ Toda resposta do modelo deve ser:
 
 ## 📜 Licença
 
-Este projeto ainda não possui uma licença definida.
+Este projeto usa a MIT License

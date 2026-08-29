@@ -5,7 +5,7 @@ from sivraj.core.registry import CommandRegistry
 
 
 class CommandRouter:
-    """Encaminha comandos para os handlers registrados."""
+    """Responsável por encaminhar respostas da IA para os comandos."""
 
     def __init__(self, registry: CommandRegistry) -> None:
         self.registry = registry
@@ -14,9 +14,10 @@ class CommandRouter:
         """
         Executa o comando descrito em command_data.
 
-        O campo 'cmd' determina qual comando será procurado
-        no CommandRegistry.
+        O campo 'cmd' determina qual comando será
+        procurado no CommandRegistry.
         """
+
         command_name = command_data.get("cmd")
 
         if not command_name:
@@ -27,5 +28,5 @@ class CommandRouter:
         if command is None:
             raise ValueError(f"Unknown command: {command_name}")
 
-        return command.execute()
+        return command.execute(command_data)
 

@@ -1,23 +1,30 @@
 
+
+from unittest.mock import Mock
+
 import pytest
 
 from sivraj.core.registry import CommandRegistry
 from sivraj.core.router import CommandRouter
 
 
-def example_command(data):
-    return {
-        "executed": True,
-        "data": data,
-    }
-
-
 class TestCommandRouter:
-    def test_route_registered_command(self):
-        registry = CommandRegistry()
-        registry.register("example", example_command)
 
+    def create_router(self):
+        registry = CommandRegistry()
         router = CommandRouter(registry)
+        return registry, router
+
+    def test_route_registered_command(self):
+        registry, router = self.create_router()
+
+        command = Mock()
+        command.execute.return_value = {
+            "success": True,
+            "command": "example",
+        }
+
+        registry.register("example", command)
 
         data = {
             "cmd": "example",
@@ -27,12 +34,15 @@ class TestCommandRouter:
 
         result = router.route(data)
 
-        assert result["executed"] is True
-        assert result["data"] == data
+        assert result == {
+            "success": True,
+            "command": "example",
+        }
+
+        command.execute.assert_called_once_with(data)
 
     def test_route_unknown_command(self):
-        registry = CommandRegistry()
-        router = CommandRouter(registry)
+        _, router = self.create_router()
 
         data = {
             "cmd": "unknown",
@@ -40,32 +50,33 @@ class TestCommandRouter:
             "show": None,
         }
 
-        with pytest.raises(ValueError, match="Unknown command"):
+        with pytest.raises(
+            ValueError,
+            match="Unknown command: unknown",
+        ):
             router.route(data)
 
-    def test_route_without_cmd(self):
-        registry = CommandRegistry()
-        router = CommandRouter(registry)
+    def test_route_requires_command_name(self):
+        _, router = self.create_router()
 
         data = {
             "response": "Testing.",
             "show": None,
         }
 
-        with pytest.raises(ValueError, match="must contain 'cmd'"):
+        with pytest.raises(
+            ValueError,
+            match="Command data must contain 'cmd'",
+        ):
             router.route(data)
 
     def test_command_receives_complete_data(self):
-        received_data = None
+        registry, router = self.create_router()
 
-        def capture_command(data):
-            nonlocal received_data
-            received_data = data
+        command = Mock()
+        command.execute.return_value = None
 
-        registry = CommandRegistry()
-        registry.register("capture", capture_command)
-
-        router = CommandRouter(registry)
+        registry.register("capture", command)
 
         data = {
             "cmd": "capture",
@@ -75,16 +86,21 @@ class TestCommandRouter:
 
         router.route(data)
 
-        assert received_data == data
+        command.execute.assert_called_once_with(data)
 
     def test_command_return_value_is_preserved(self):
-        def return_command(data):
-            return "SIVRAJ executed successfully"
+        registry, router = self.create_router()
 
-        registry = CommandRegistry()
-        registry.register("return", return_command)
+        expected_result = {
+            "success": True,
+            "command": "return",
+            "message": "SIVRAJ executed successfully",
+        }
 
-        router = CommandRouter(registry)
+        command = Mock()
+        command.execute.return_value = expected_result
+
+        registry.register("return", command)
 
         result = router.route({
             "cmd": "return",
@@ -92,5 +108,22 @@ class TestCommandRouter:
             "show": None,
         })
 
-        assert result == "SIVRAJ executed successfully"
+        assert result is expected_result
+        command.execute.assert_called_once()
+
+    def test_command_is_executed_exactly_once(self):
+        registry, router = self.create_router()
+
+        command = Mock()
+        command.execute.return_value = {"success": True}
+
+        registry.register("test", command)
+
+        router.route({
+            "cmd": "test",
+            "response": "Testing.",
+            "show": None,
+        })
+
+        command.execute.assert_called_once()
 

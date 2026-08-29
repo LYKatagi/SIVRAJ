@@ -142,18 +142,18 @@ python main.py
 
 ### v0.1 — Core
 
-* [ ] Estrutura inicial
-* [ ] CLI
-* [ ] Integração com Ollama
-* [ ] Parser de comandos
-* [ ] Validação de JSON
-* [ ] Command Router
+* [X] Estrutura inicial
+* [] CLI
+* [X] Integração com Ollama
+* [X] Parser de comandos
+* [X] Validação de JSON
+* [X] Command Router
 
 ### v0.2 — Voice
 
-* [ ] Speech-to-Text
+* [X] Speech-to-Text
 * [ ] Text-to-Speech
-* [ ] Pipeline de voz
+* [X] Pipeline de voz
 
 ### v0.3 — Commands
 

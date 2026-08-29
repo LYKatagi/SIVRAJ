@@ -8,7 +8,6 @@ from sivraj.core.recovery import RecoveryManager
 from sivraj.core.router import CommandRouter
 from sivraj.log.logger import get_logger
 
-
 logger = get_logger(__name__)
 
 

@@ -4,7 +4,6 @@ from unittest.mock import Mock
 
 import pytest
 
-from sivraj.ai.schema import Schema
 from sivraj.core.orchestrator import Orchestrator
 from sivraj.core.recovery import RecoveryManager
 

@@ -14,8 +14,8 @@ if str(ROOT) not in sys.path:
 
 from sivraj.ai.ollama import OllamaClient
 from sivraj.core.orchestrator import Orchestrator
-from sivraj.core.registry import CommandRegistry
 from sivraj.core.recovery import RecoveryManager
+from sivraj.core.registry import CommandRegistry
 from sivraj.core.router import CommandRouter
 from sivraj.load.loader import CommandLoader
 from sivraj.voice.voice import Voice, VoiceError

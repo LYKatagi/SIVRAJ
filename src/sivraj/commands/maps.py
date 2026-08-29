@@ -1,4 +1,5 @@
 from typing import Any
+
 from sivraj.commands.base import Command
 
 

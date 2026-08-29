@@ -1,2 +1,2 @@
-from .maps import *
 from .base import *
+from .maps import *

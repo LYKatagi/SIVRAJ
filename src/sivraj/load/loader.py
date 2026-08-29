@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib
 import inspect
 import pkgutil
-from typing import Type
 
 from sivraj.commands.base import Command
 from sivraj.core.registry import CommandRegistry

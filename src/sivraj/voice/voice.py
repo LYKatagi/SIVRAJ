@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import Any
 
-import sounddevice as sd
 import numpy as np
+import sounddevice as sd
 from faster_whisper import WhisperModel
 
 from sivraj.log.logger import get_logger
-
 
 logger = get_logger(__name__)
 

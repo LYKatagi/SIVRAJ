@@ -1,6 +1,7 @@
 from jsonschema import ValidationError, validate
-from sivraj.log.logger import get_logger
+
 from sivraj.core.config import SCHEMA
+from sivraj.log.logger import get_logger
 
 
 class Schema:

@@ -4,10 +4,7 @@ from typing import Any
 import ollama
 
 from sivraj.ai.schema import Schema
-from sivraj.core.config import OLLAMA_MODEL
-
-
-from sivraj.core.config import SYSTEM_PROMPT
+from sivraj.core.config import OLLAMA_MODEL, SYSTEM_PROMPT
 
 
 class OllamaError(Exception):

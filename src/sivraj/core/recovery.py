@@ -6,7 +6,6 @@ from typing import TypeVar
 
 from sivraj.log.logger import get_logger
 
-
 T = TypeVar("T")
 
 logger = get_logger(__name__)

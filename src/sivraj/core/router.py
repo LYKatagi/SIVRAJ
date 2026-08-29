@@ -10,12 +10,7 @@ class CommandRouter:
         self.registry = registry
 
     def route(self, command_data: dict[str, Any]) -> Any:
-        """
-        Executa o comando descrito em command_data.
-
-        O campo 'cmd' determina qual comando será
-        procurado no CommandRegistry.
-        """
+        """Executa o comando descrito em command_data."""
 
         command_name = command_data.get("cmd")
 
@@ -27,4 +22,9 @@ class CommandRouter:
         if command is None:
             raise ValueError(f"Unknown command: {command_name}")
 
-        return command.execute(command_data)
+        args = command_data.get("args", {})
+
+        if not isinstance(args, dict):
+            raise ValueError("Command 'args' must be an object.")
+
+        return command.execute(**args)

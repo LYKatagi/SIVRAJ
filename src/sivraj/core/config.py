@@ -56,13 +56,11 @@ Expected structure:
 
 SCHEMA = {
     "type": "object",
-
     "required": [
         "cmd",
         "response",
         "show",
     ],
-
     "properties": {
         "cmd": {
             "type": "string",
@@ -73,11 +71,9 @@ SCHEMA = {
                 "none",
             ],
         },
-
         "response": {
             "type": "string",
         },
-
         "show": {
             "type": [
                 "string",
@@ -89,9 +85,7 @@ SCHEMA = {
             ],
         },
     },
-
     "additionalProperties": False,
-
     "allOf": [
         {
             "if": {
@@ -101,7 +95,6 @@ SCHEMA = {
                     },
                 },
             },
-
             "then": {
                 "properties": {
                     "show": {
@@ -110,7 +103,6 @@ SCHEMA = {
                 },
             },
         },
-
         {
             "if": {
                 "properties": {
@@ -123,7 +115,6 @@ SCHEMA = {
                     },
                 },
             },
-
             "then": {
                 "properties": {
                     "show": {
@@ -134,4 +125,3 @@ SCHEMA = {
         },
     ],
 }
-

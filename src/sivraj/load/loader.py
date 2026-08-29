@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import importlib
@@ -27,18 +26,14 @@ class CommandLoader:
 
         import sivraj.commands
 
-        for module_info in pkgutil.iter_modules(
-            sivraj.commands.__path__
-        ):
+        for module_info in pkgutil.iter_modules(sivraj.commands.__path__):
             module_name = module_info.name
 
             # Don't try to load the base command class itself.
             if module_name.startswith("_") or module_name == "base":
                 continue
 
-            module = importlib.import_module(
-                f"sivraj.commands.{module_name}"
-            )
+            module = importlib.import_module(f"sivraj.commands.{module_name}")
 
             for _, obj in inspect.getmembers(
                 module,
@@ -59,4 +54,3 @@ class CommandLoader:
                     loaded += 1
 
         return loaded
-

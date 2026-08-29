@@ -1,5 +1,3 @@
-
-
 from unittest.mock import Mock
 
 import pytest
@@ -9,7 +7,6 @@ from sivraj.core.router import CommandRouter
 
 
 class TestCommandRouter:
-
     def create_router(self):
         registry = CommandRegistry()
         router = CommandRouter(registry)
@@ -102,11 +99,13 @@ class TestCommandRouter:
 
         registry.register("return", command)
 
-        result = router.route({
-            "cmd": "return",
-            "response": "Testing.",
-            "show": None,
-        })
+        result = router.route(
+            {
+                "cmd": "return",
+                "response": "Testing.",
+                "show": None,
+            }
+        )
 
         assert result is expected_result
         command.execute.assert_called_once()
@@ -119,11 +118,12 @@ class TestCommandRouter:
 
         registry.register("test", command)
 
-        router.route({
-            "cmd": "test",
-            "response": "Testing.",
-            "show": None,
-        })
+        router.route(
+            {
+                "cmd": "test",
+                "response": "Testing.",
+                "show": None,
+            }
+        )
 
         command.execute.assert_called_once()
-

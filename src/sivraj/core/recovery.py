@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import time
@@ -136,7 +135,4 @@ class RecoveryManager:
             name,
         )
 
-        raise RecoveryError(
-            f"Unable to recover {name}"
-        ) from last_error
-
+        raise RecoveryError(f"Unable to recover {name}") from last_error

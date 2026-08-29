@@ -1,4 +1,3 @@
-
 from typing import Any
 
 from sivraj.core.registry import CommandRegistry
@@ -29,4 +28,3 @@ class CommandRouter:
             raise ValueError(f"Unknown command: {command_name}")
 
         return command.execute(command_data)
-

@@ -1,5 +1,3 @@
-
-
 from __future__ import annotations
 
 from typing import Any
@@ -41,9 +39,7 @@ class Voice:
             )
         except Exception as error:
             logger.exception("Failed to load Whisper model")
-            raise VoiceError(
-                "Failed to load speech recognition model."
-            ) from error
+            raise VoiceError("Failed to load speech recognition model.") from error
 
     def get_input(
         self,
@@ -80,9 +76,7 @@ class Voice:
 
         except Exception as error:
             logger.exception("Failed to record audio")
-            raise VoiceError(
-                "Failed to capture microphone input."
-            ) from error
+            raise VoiceError("Failed to capture microphone input.") from error
 
         logger.info("Voice input captured")
 
@@ -115,16 +109,12 @@ class Voice:
             )
 
             text = " ".join(
-                segment.text.strip()
-                for segment in segments
-                if segment.text.strip()
+                segment.text.strip() for segment in segments if segment.text.strip()
             ).strip()
 
         except Exception as error:
             logger.exception("Failed to transcribe audio")
-            raise VoiceError(
-                "Failed to transcribe voice input."
-            ) from error
+            raise VoiceError("Failed to transcribe voice input.") from error
 
         if not text:
             raise VoiceError("No speech detected.")
@@ -132,4 +122,3 @@ class Voice:
         logger.info("Voice parsed successfully: %r", text)
 
         return text
-

@@ -1,4 +1,3 @@
-
 from jsonschema import ValidationError, validate
 from sivraj.log.logger import get_logger
 from sivraj.core.config import SCHEMA
@@ -13,9 +12,8 @@ class Schema:
                 instance=data,
                 schema=SCHEMA,
             )
-            
+
             return True
 
         except ValidationError:
             return False
-

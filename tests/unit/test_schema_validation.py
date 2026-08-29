@@ -1,4 +1,3 @@
-
 import pytest
 
 from sivraj.ai.schema import Schema

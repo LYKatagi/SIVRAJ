@@ -1,4 +1,3 @@
-
 from unittest.mock import Mock
 
 from sivraj.ai.schema import Schema
@@ -78,4 +77,3 @@ class TestSivrajPipeline:
         """The Registry should not contain commands that do not exist."""
 
         assert "banana" not in self.registry._commands
-

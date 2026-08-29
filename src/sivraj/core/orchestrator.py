@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from typing import Any
@@ -48,19 +47,13 @@ class Orchestrator:
                 data,
             )
 
-            raise ValueError(
-                "Ollama returned an invalid SIVRAJ response"
-            )
+            raise ValueError("Ollama returned an invalid SIVRAJ response")
 
-        logger.info(
-            "Ollama response validated successfully"
-        )
+        logger.info("Ollama response validated successfully")
 
         # Conversation
         if data["cmd"] == "none":
-            logger.info(
-                "Conversation response received"
-            )
+            logger.info("Conversation response received")
 
             return {
                 "success": True,

@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from unittest.mock import Mock
@@ -91,9 +90,7 @@ class TestOrchestrator:
             "show": "location",
         }
 
-        ollama.generate.assert_called_once_with(
-            "Mostre minha localização"
-        )
+        ollama.generate.assert_called_once_with("Mostre minha localização")
 
         router.route.assert_called_once_with(response)
 
@@ -195,4 +192,3 @@ class TestOrchestrator:
             orchestrator.process("Teste")
 
         router.route.assert_not_called()
-

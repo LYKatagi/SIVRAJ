@@ -1,6 +1,3 @@
-
-
-
 import json
 from typing import Any
 
@@ -11,6 +8,7 @@ from sivraj.core.config import OLLAMA_MODEL
 
 
 from sivraj.core.config import SYSTEM_PROMPT
+
 
 class OllamaError(Exception):
     """Base exception for SIVRAJ Ollama errors."""
@@ -83,9 +81,7 @@ class OllamaClient:
         data = self._parse_json(raw_content)
 
         if not Schema.validate_data(data):
-            raise OllamaResponseError(
-                "Ollama returned an invalid SIVRAJ response"
-            )
+            raise OllamaResponseError("Ollama returned an invalid SIVRAJ response")
 
         return data
 
@@ -104,9 +100,7 @@ class OllamaClient:
                 ) from error
 
         if not isinstance(content, str) or not content.strip():
-            raise OllamaResponseError(
-                "Ollama returned an empty response."
-            )
+            raise OllamaResponseError("Ollama returned an empty response.")
 
         return content.strip()
 
@@ -117,14 +111,9 @@ class OllamaClient:
         try:
             data = json.loads(content)
         except json.JSONDecodeError as error:
-            raise OllamaResponseError(
-                "Ollama returned invalid JSON."
-            ) from error
+            raise OllamaResponseError("Ollama returned invalid JSON.") from error
 
         if not isinstance(data, dict):
-            raise OllamaResponseError(
-                "Ollama response must be a JSON object."
-            )
+            raise OllamaResponseError("Ollama response must be a JSON object.")
 
         return data
-

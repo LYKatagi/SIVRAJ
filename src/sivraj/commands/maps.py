@@ -8,12 +8,12 @@ class MapsCommand(Command):
 
     name = "maps"
 
-    def execute(self, command_data: dict[str, Any]) -> dict[str, Any]:
+    def execute(self, **kwargs: Any) -> dict[str, Any]:
         """Executa o comando de mapas."""
 
         return {
             "success": True,
-            "command": "maps",
-            "show": command_data.get("show"),
+            "command": self.name,
+            "show": "location",
             "message": "Solicitação de localização recebida.",
         }

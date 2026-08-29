@@ -92,6 +92,7 @@ SCHEMA = {
     "type": "object",
     "required": [
         "cmd",
+        "args",
         "response",
         "show",
     ],
@@ -104,6 +105,10 @@ SCHEMA = {
                 "system",
                 "none",
             ],
+        },
+        "args": {
+            "type": "object",
+            "additionalProperties": True,
         },
         "response": {
             "type": "string",

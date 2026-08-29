@@ -1,14 +1,9 @@
-from __future__ import annotations
 
 from typing import Any
 
-from sivraj.ai.ollama import OllamaClient
 from sivraj.ai.schema import Schema
-from sivraj.core.recovery import RecoveryManager
 from sivraj.core.router import CommandRouter
 from sivraj.log.logger import get_logger
-
-logger = get_logger(__name__)
 
 
 class Orchestrator:
@@ -16,17 +11,17 @@ class Orchestrator:
 
     def __init__(
         self,
-        ollama: OllamaClient,
+        ollama: Any,
         router: CommandRouter,
-        recovery: RecoveryManager | None = None,
+        recovery: Any,
     ) -> None:
         self.ollama = ollama
         self.router = router
-        self.recovery = recovery or RecoveryManager()
+        self.recovery = recovery
 
     def process(self, prompt: str) -> dict[str, Any]:
         """Processa uma entrada através do pipeline completo."""
-
+        logger = get_logger(__name__)
         logger.info("Processing input: %r", prompt)
 
         # Ollama
@@ -40,47 +35,49 @@ class Orchestrator:
         # Schema
         logger.info("Validating Ollama response")
 
+        if not isinstance(data, dict):
+            logger.error(
+                "Ollama returned non-dict data: %r",
+                data,
+            )
+            raise ValueError(
+                "Ollama returned an invalid SIVRAJ response"
+            )
+
         if not Schema.validate_data(data):
             logger.error(
                 "Invalid SIVRAJ response from Ollama: %r",
                 data,
             )
+            raise ValueError(
+                "Ollama returned an invalid SIVRAJ response"
+            )
 
-            raise ValueError("Ollama returned an invalid SIVRAJ response")
+        command_name = data["cmd"]
 
-        logger.info("Ollama response validated successfully")
-
-        # Conversation
-        if data["cmd"] == "none":
-            logger.info("Conversation response received")
+        # Conversação normal não passa pelo Router.
+        if command_name == "none":
+            logger.info("No command required")
 
             return {
                 "success": True,
-                "executed": False,
+                "command": "none",
                 "response": data["response"],
                 "show": data["show"],
             }
 
-        # Router → Command
+        # Command
         logger.info(
             "Routing command: %s",
-            data["cmd"],
+            command_name,
         )
 
-        result = self.recovery.run(
-            lambda: self.router.route(data),
-            name=f"command:{data['cmd']}",
-        )
+        result = self.router.route(data)
 
         logger.info(
-            "Command executed successfully: %s",
-            data["cmd"],
+            "Command %s executed successfully",
+            command_name,
         )
 
-        return {
-            "success": True,
-            "executed": True,
-            "response": data["response"],
-            "result": result,
-            "show": data["show"],
-        }
+        return result
+

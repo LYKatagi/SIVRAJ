@@ -2,7 +2,8 @@
 
 
 
-"""SIVRAJ application"""
+
+"""SIVRAJ application."""
 
 from sivraj.ai.ollama import OllamaClient
 from sivraj.core.orchestrator import Orchestrator
@@ -10,12 +11,12 @@ from sivraj.core.recovery import RecoveryManager
 from sivraj.core.registry import CommandRegistry
 from sivraj.core.router import CommandRouter
 from sivraj.load.loader import CommandLoader
+from sivraj.ui.terminal import Renderer
 from sivraj.voice.voice import Voice
 
 
 def create_orchestrator() -> Orchestrator:
     """Build and configure the SIVRAJ orchestrator."""
-
     registry = CommandRegistry()
 
     loader = CommandLoader(registry)
@@ -31,20 +32,20 @@ def create_orchestrator() -> Orchestrator:
     )
 
 
+
 def main() -> None:
     """Start SIVRAJ."""
-
     orchestrator = create_orchestrator()
+    renderer = Renderer(rich=True)
 
-    print("SIVRAJ")
-    print("Digite 'exit' para sair.\n")
+    renderer.start()
 
     while True:
         try:
-            prompt = input("Você: ").strip()
+            prompt = renderer.input()
 
             if prompt.lower() in {"exit", "quit"}:
-                print("SIVRAJ: Até mais!")
+                renderer.render_goodbye()
                 break
 
             if not prompt:
@@ -55,14 +56,13 @@ def main() -> None:
                 voice=False,
             )
 
-            print(f"SIVRAJ: {result['response']}")
+            renderer.render(result)
 
         except KeyboardInterrupt:
-            print("\nSIVRAJ: Até mais!")
+            renderer.render_goodbye()
             break
 
         except Exception as error:
-            print(f"SIVRAJ: Erro: {error}")
-
+            renderer.render_error(error)
 
 

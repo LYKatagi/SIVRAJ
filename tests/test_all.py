@@ -28,7 +28,7 @@ from sivraj.core.config import SCHEMA
 from sivraj.core.orchestrator import Orchestrator
 from sivraj.core.registry import CommandRegistry
 from sivraj.core.router import CommandRouter
-
+from sivraj.voice.voice import Voice
 
 # ============================================================
 # Fixtures
@@ -45,7 +45,9 @@ def registry() -> CommandRegistry:
 def router(registry: CommandRegistry) -> CommandRouter:
     """Create a router using the test registry."""
     return CommandRouter(registry)
-
+@pytest.fixture
+def voice() -> Voice:
+    return Voice()
 
 @pytest.fixture
 def recovery() -> Mock:
@@ -64,6 +66,7 @@ def create_orchestrator(
     response: dict,
     router: CommandRouter,
     recovery: Mock,
+    voice: Voice
 ) -> Orchestrator:
     """Create an Orchestrator with mocked external dependencies."""
 
@@ -74,6 +77,7 @@ def create_orchestrator(
         ollama=ollama,
         router=router,
         recovery=recovery,
+        voice=voice
     )
 
 
@@ -519,6 +523,7 @@ class TestGlobalOrchestrator:
         self,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """Normal conversation must not execute a command."""
 
@@ -533,9 +538,10 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
-        result = orchestrator.process("Olá")
+        result = orchestrator.process("Olá", voice=False)
 
         assert result["success"] is True
         assert result["command"] == "none"
@@ -547,6 +553,7 @@ class TestGlobalOrchestrator:
         registry: CommandRegistry,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice,
     ) -> None:
         """A maps command must travel through the complete pipeline."""
 
@@ -570,10 +577,11 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
         result = orchestrator.process(
-            "Mostre minha localização"
+            "Mostre minha localização", voice=False
         )
 
         assert result["success"] is True
@@ -586,6 +594,7 @@ class TestGlobalOrchestrator:
         registry: CommandRegistry,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """Arguments must travel from Ollama to the command."""
 
@@ -611,9 +620,10 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
-        orchestrator.process("Verifique o sistema")
+        orchestrator.process("Verifique o sistema", voice=False)
 
         command.execute.assert_called_once_with(
             action="status",
@@ -624,6 +634,7 @@ class TestGlobalOrchestrator:
         self,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """Invalid Ollama responses must never reach the router."""
 
@@ -638,18 +649,20 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
         with pytest.raises(
             ValueError,
             match="invalid SIVRAJ response",
         ):
-            orchestrator.process("teste")
+            orchestrator.process("teste", voice=False)
 
     def test_non_dict_response_is_rejected(
         self,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice,
     ) -> None:
         """Ollama must return an object."""
 
@@ -657,18 +670,20 @@ class TestGlobalOrchestrator:
             "invalid",
             router,
             recovery,
+            voice
         )
 
         with pytest.raises(
             ValueError,
             match="invalid SIVRAJ response",
         ):
-            orchestrator.process("teste")
+            orchestrator.process("teste", voice=False)
 
     def test_original_prompt_reaches_ollama(
         self,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """The original user prompt must be passed to Ollama."""
 
@@ -683,11 +698,12 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
         prompt = "Como você está?"
 
-        orchestrator.process(prompt)
+        orchestrator.process(prompt, voice=False)
 
         orchestrator.ollama.generate.assert_called_once_with(prompt)
 
@@ -695,6 +711,7 @@ class TestGlobalOrchestrator:
         self,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """cmd=none must bypass the router."""
 
@@ -711,9 +728,10 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
-        orchestrator.process("Oi")
+        orchestrator.process("Oi", voice=False)
 
         router.route.assert_not_called()
 
@@ -722,6 +740,7 @@ class TestGlobalOrchestrator:
         registry: CommandRegistry,
         router: CommandRouter,
         recovery: Mock,
+        voice: Voice
     ) -> None:
         """The Orchestrator must preserve the command result."""
 
@@ -748,9 +767,10 @@ class TestGlobalOrchestrator:
             response,
             router,
             recovery,
+            voice
         )
 
-        result = orchestrator.process("Onde estou?")
+        result = orchestrator.process("Onde estou?", voice=False)
 
         assert result == expected
 

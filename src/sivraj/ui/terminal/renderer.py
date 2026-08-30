@@ -1,10 +1,13 @@
 
 
 
+
 """Main terminal renderer for SIVRAJ."""
 
 from __future__ import annotations
 
+import msvcrt
+from dataclasses import dataclass
 from typing import Any
 
 from rich.console import Console
@@ -13,6 +16,14 @@ from rich.rule import Rule
 
 from sivraj.ui.terminal.rich_renderer import RichRenderer
 from sivraj.ui.terminal.text_renderer import TextRenderer
+
+
+@dataclass(slots=True)
+class InputResult:
+    """Represent terminal input."""
+
+    prompt: str | None = None
+    voice: bool = False
 
 
 class Renderer:
@@ -25,7 +36,7 @@ class Renderer:
     ) -> None:
         self.rich_enabled = rich
         self.console = console or Console()
-
+        self.VOICE_KEY = "\x3c"
         self.text_renderer = TextRenderer()
         self.rich_renderer = RichRenderer(self.console)
 
@@ -47,19 +58,90 @@ class Renderer:
         )
 
         self.console.print(
-            "Digite 'exit' para sair.\n"
+            "Digite 'exit' para sair."
+        )
+        self.console.print(
+            "[dim]Ctrl+Space para falar.[/dim]\n"
         )
 
-    def input(self) -> str:
-        """Read user input."""
+   
+
+    
+
+
+    def input(self) -> InputResult:
+        """Read text input or activate voice input with F2."""
         if not self.rich_enabled:
-            return input("Você\n> ").strip()
+            return InputResult(
+                prompt=input("Você\n> ").strip()
+            )
 
         self.console.print("[bold]Você[/bold]")
+        self.console.print(
+            "[dim]F2 para falar[/dim]"
+        )
 
-        return self.console.input(
-            "[bold green]>[/bold green] "
-        ).strip()
+        buffer: list[str] = []
+
+        self.console.print(
+            "[bold green]>[/bold green] ",
+            end="",
+        )
+
+        while True:
+            key = msvcrt.getwch()
+
+            # Special/function key.
+            if key == "\x00" or key == "\xe0":
+                special_key = msvcrt.getwch()
+
+                # F2
+                if special_key == self.VOICE_KEY:
+                    self.console.print()
+
+                    return InputResult(
+                        prompt=None,
+                        voice=True,
+                    )
+
+                continue
+
+            # Enter
+            if key == "\r":
+                self.console.print()
+
+                return InputResult(
+                    prompt="".join(buffer).strip()
+                )
+
+            # Backspace
+            if key == "\b":
+                if buffer:
+                    buffer.pop()
+
+                    self.console.print(
+                        "\b \b",
+                        end="",
+                    )
+
+                continue
+
+            # Escape
+            if key == "\x1b":
+                self.console.print()
+
+                return InputResult()
+
+            # Printable character
+            if key.isprintable():
+                buffer.append(key)
+
+                self.console.print(
+                    key,
+                    end="",
+                )
+
+
 
     def thinking(self) -> None:
         """Display the thinking state."""
@@ -78,6 +160,15 @@ class Renderer:
             )
         else:
             print("Processing...")
+
+    def listening(self) -> None:
+        """Display the voice listening state."""
+        if self.rich_enabled:
+            self.console.print(
+                "[bold magenta]🎙 Listening...[/bold magenta]"
+            )
+        else:
+            print("Listening...")
 
     def render(self, result: Any) -> None:
         """Render a SIVRAJ response."""

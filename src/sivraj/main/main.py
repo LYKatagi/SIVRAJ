@@ -3,6 +3,7 @@
 
 
 
+
 """SIVRAJ application."""
 
 from sivraj.ai.ollama import OllamaClient
@@ -32,7 +33,6 @@ def create_orchestrator() -> Orchestrator:
     )
 
 
-
 def main() -> None:
     """Start SIVRAJ."""
     orchestrator = create_orchestrator()
@@ -42,20 +42,32 @@ def main() -> None:
 
     while True:
         try:
-            prompt = renderer.input()
+            user_input = renderer.input()
 
-            if prompt.lower() in {"exit", "quit"}:
-                renderer.render_goodbye()
-                break
+            if user_input.prompt:
+                if user_input.prompt.lower() in {"exit", "quit"}:
+                    renderer.render_goodbye()
+                    break
 
-            if not prompt:
+                renderer.thinking()
+
+                result = orchestrator.process(
+                    prompt=user_input.prompt,
+                    voice=False,
+                )
+
+            elif user_input.voice:
+                renderer.listening()
+
+                result = orchestrator.process(
+                    prompt=None,
+                    voice=True,
+                )
+
+            else:
                 continue
 
-            result = orchestrator.process(
-                prompt=prompt,
-                voice=False,
-            )
-
+            renderer.processing()
             renderer.render(result)
 
         except KeyboardInterrupt:
@@ -65,4 +77,7 @@ def main() -> None:
         except Exception as error:
             renderer.render_error(error)
 
+
+if __name__ == "__main__":
+    main()
 

@@ -19,6 +19,9 @@ class OpenAppCommand(Command):
         "notepad": "notepad.exe",
         "calculator": "calc.exe",
         "explorer": "explorer.exe",
+        "powershell": "powershell.exe",
+        "cmd": "cmd"
+        
     }
 
     def execute(self, **kwargs: Any) -> dict[str, Any]:

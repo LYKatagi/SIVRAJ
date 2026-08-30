@@ -14,16 +14,22 @@ class Orchestrator:
         ollama: Any,
         router: CommandRouter,
         recovery: Any,
+        voice: Any
     ) -> None:
         self.ollama = ollama
         self.router = router
         self.recovery = recovery
-
-    def process(self, prompt: str) -> dict[str, Any]:
+        self.voice = voice
+    def process_voice(self):
+        input_data = self.voice.get_input()
+        text = self.voice.parse(input_data)
+        return text
+    def process(self, prompt: Any, voice: bool) -> dict[str, Any]:
         """Processa uma entrada através do pipeline completo."""
         logger = get_logger(__name__)
         logger.info("Processing input: %r", prompt)
-
+        if voice == True:
+            prompt = self.process_voice()
         # Ollama
         logger.info("Calling Ollama")
 

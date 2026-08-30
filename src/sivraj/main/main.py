@@ -4,6 +4,7 @@
 
 
 
+
 """SIVRAJ application."""
 
 from sivraj.ai.ollama import OllamaClient
@@ -18,6 +19,7 @@ from sivraj.voice.voice import Voice
 
 def create_orchestrator() -> Orchestrator:
     """Build and configure the SIVRAJ orchestrator."""
+
     registry = CommandRegistry()
 
     loader = CommandLoader(registry)
@@ -35,6 +37,7 @@ def create_orchestrator() -> Orchestrator:
 
 def main() -> None:
     """Start SIVRAJ."""
+
     orchestrator = create_orchestrator()
     renderer = Renderer(rich=True)
 
@@ -44,8 +47,14 @@ def main() -> None:
         try:
             user_input = renderer.input()
 
+            # ----------------------------------------------------------
+            # Text input
+            # ----------------------------------------------------------
+
             if user_input.prompt:
-                if user_input.prompt.lower() in {"exit", "quit"}:
+                if renderer.is_exit_command(
+                    user_input.prompt
+                ):
                     renderer.render_goodbye()
                     break
 
@@ -56,19 +65,46 @@ def main() -> None:
                     voice=False,
                 )
 
-            elif user_input.voice:
-                renderer.listening()
+                renderer.processing()
+                renderer.render(result)
 
-                result = orchestrator.process(
-                    prompt=None,
-                    voice=True,
-                )
-
-            else:
                 continue
 
-            renderer.processing()
-            renderer.render(result)
+            # ----------------------------------------------------------
+            # Voice input
+            # ----------------------------------------------------------
+
+            if user_input.voice:
+                renderer.listening()
+
+                voice = orchestrator.voice
+
+                voice.start_recording()
+
+                try:
+                    # F2 stops recording.
+                    # ESC cancels recording.
+                    while voice.recording:
+                        key = renderer.console.input(
+                            ""
+                        )
+
+                except KeyboardInterrupt:
+                    voice.cancel_recording()
+                    raise
+
+                audio = voice.stop_recording()
+
+                renderer.processing()
+
+                text = voice.parse(audio)
+
+                result = orchestrator.process(
+                    prompt=text,
+                    voice=False,
+                )
+
+                renderer.render(result)
 
         except KeyboardInterrupt:
             renderer.render_goodbye()
@@ -77,7 +113,4 @@ def main() -> None:
         except Exception as error:
             renderer.render_error(error)
 
-
-if __name__ == "__main__":
-    main()
 

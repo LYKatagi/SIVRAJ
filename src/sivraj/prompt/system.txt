@@ -279,6 +279,18 @@ Resposta:
     "args": {}
 }
 
+MAPS:
+- Use cmd="maps" para solicitações relacionadas a mapas ou localização.
+- Para "mostre minha localização", use:
+  args.query = "current_location"
+- Para uma localização específica, coloque o texto pesquisado em:
+  args.query 
+- Exemplos:
+  "mostre minha localização" → query="current_location"
+  "mostre São Paulo" → query="São Paulo"
+  "onde fica o Japão?" → query="Japão"
+- Quando cmd="maps", show deve ser "location".
+
 ==================================================
 LEMBRETE FINAL
 ==================================================

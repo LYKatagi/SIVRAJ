@@ -3,35 +3,25 @@
 
 
 
-"""Supreme terminal renderer for SIVRAJ."""
+
+"""SIVRAJ terminal renderer."""
 
 from __future__ import annotations
 
-import msvcrt
-from dataclasses import dataclass
 from typing import Any
 
 from rich.console import Console
+from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.rule import Rule
+from rich.text import Text
 
 from sivraj.ui.terminal.rich_renderer import RichRenderer
 from sivraj.ui.terminal.text_renderer import TextRenderer
 
 
-@dataclass(slots=True)
-class InputResult:
-    """Represent a terminal input event."""
-
-    prompt: str | None = None
-    voice: bool = False
-
-
 class Renderer:
-    """Manage the SIVRAJ terminal interface."""
-
-    VOICE_KEY = "0"
-    EXIT_COMMANDS = frozenset({"exit", "quit"})
+    """Render the SIVRAJ terminal interface."""
 
     def __init__(
         self,
@@ -44,131 +34,51 @@ class Renderer:
         self.text_renderer = TextRenderer()
         self.rich_renderer = RichRenderer(self.console)
 
-        self._started = False
-        self._thinking = False
-        self._listening = False
-
-    # ------------------------------------------------------------------
-    # Lifecycle
-    # ------------------------------------------------------------------
-
     def start(self) -> None:
-        """Display the SIVRAJ startup interface."""
-
-        if self._started:
-            return
-
-        self._started = True
-
+        """Display the application header."""
         if not self.rich_enabled:
             print("SIVRAJ")
             print("AI Personal Assistant")
-            print("Digite 'exit' para sair.")
-            print("F2 para falar.\n")
+            print("Digite 'exit' para sair.\n")
             return
+
+        self.console.print()
 
         self.console.print(
             Panel(
-                "[bold cyan]SIVRAJ[/bold cyan]\n"
-                "[dim]AI Personal Assistant[/dim]",
+                Text.assemble(
+                    ("SIVRAJ", "bold cyan"),
+                    "\n",
+                    ("AI Personal Assistant", "dim"),
+                ),
                 border_style="cyan",
-                expand=True,
+                padding=(1, 2),
             )
         )
 
         self.console.print(
-            "Digite 'exit' para sair."
+            "[dim]Digite 'exit' para sair.[/dim]"
         )
 
         self.console.print(
-            "[dim]F2 para falar.[/dim]\n"
+            Rule(style="dim")
         )
 
-    # ------------------------------------------------------------------
-    # Input
-    # ------------------------------------------------------------------
-
-    def input(self) -> InputResult:
-        """Read terminal input or activate voice mode."""
-
+    def input(self) -> str:
+        """Read user input."""
         if not self.rich_enabled:
-            return InputResult(
-                prompt=input("Você\n> ").strip()
-            )
-
-        self.console.print("[bold]Você[/bold]")
-        self.console.print(
-            "[dim]F2 para falar[/dim]"
-        )
+            return input("Você\n> ").strip()
 
         self.console.print(
-            "[bold green]>[/bold green] ",
-            end="",
+            "\n[bold green]Você[/bold green]"
         )
 
-        buffer: list[str] = []
-
-        while True:
-            key = msvcrt.getwch()
-
-            # Extended/function key.
-            if key in {"\x00", "\xe0"}:
-                special_key = msvcrt.getwch()
-
-                # F2
-                if special_key == self.VOICE_KEY:
-                    self.console.print()
-
-                    return InputResult(
-                        voice=True
-                    )
-
-                continue
-
-            # Enter
-            if key == "\r":
-                self.console.print()
-
-                return InputResult(
-                    prompt="".join(buffer).strip()
-                )
-
-            # Backspace
-            if key == "\b":
-                if buffer:
-                    buffer.pop()
-
-                    self.console.print(
-                        "\b \b",
-                        end="",
-                    )
-
-                continue
-
-            # Escape
-            if key == "\x1b":
-                self.console.print()
-
-                return InputResult()
-
-            # Printable character
-            if key.isprintable():
-                buffer.append(key)
-
-                self.console.print(
-                    key,
-                    end="",
-                )
-
-    # ------------------------------------------------------------------
-    # Status
-    # ------------------------------------------------------------------
+        return self.console.input(
+            "[green]>[/green] "
+        ).strip()
 
     def thinking(self) -> None:
         """Display the thinking state."""
-
-        self._thinking = True
-
         if self.rich_enabled:
             self.console.print(
                 "[dim]Thinking...[/dim]"
@@ -178,9 +88,6 @@ class Renderer:
 
     def processing(self) -> None:
         """Display the processing state."""
-
-        self._thinking = False
-
         if self.rich_enabled:
             self.console.print(
                 "[dim]Processing...[/dim]"
@@ -188,37 +95,8 @@ class Renderer:
         else:
             print("Processing...")
 
-    def listening(self) -> None:
-        """Display the voice recording state."""
-
-        self._listening = True
-
-        if self.rich_enabled:
-            self.console.print(
-                "[bold magenta]🎙 Gravando...[/bold magenta]"
-            )
-            self.console.print(
-                "[dim]F2 para parar • ESC para cancelar[/dim]"
-            )
-        else:
-            print("🎙 Gravando...")
-            print("F2 para parar • ESC para cancelar")
-
-    def ready(self) -> None:
-        """Return the renderer to the idle state."""
-
-        self._thinking = False
-        self._listening = False
-
-    # ------------------------------------------------------------------
-    # Rendering
-    # ------------------------------------------------------------------
-
     def render(self, result: Any) -> None:
-        """Render a SIVRAJ response."""
-
-        self.ready()
-
+        """Render a SIVRAJ result."""
         if result is None:
             return
 
@@ -226,118 +104,63 @@ class Renderer:
             output = self.text_renderer.render(result)
 
             if output:
-                print(f"SIVRAJ\n{output}")
+                print(f"\nSIVRAJ\n{output}")
 
             return
 
-        self.console.print(
-            "\n[bold cyan]SIVRAJ[/bold cyan]"
-        )
+        response = self._get_response(result)
 
-        self.rich_renderer.render(result)
+        if response is None:
+            return
 
         self.console.print()
 
-    def render_error(
-        self,
-        error: Exception,
-    ) -> None:
+        self.console.print(
+            Panel(
+                Markdown(str(response)),
+                title="[bold cyan]SIVRAJ[/bold cyan]",
+                title_align="left",
+                border_style="cyan",
+                padding=(1, 2),
+            )
+        )
+
+        self.console.print()
+
+    def render_error(self, error: Exception) -> None:
         """Render an application error."""
-
-        self.ready()
-
         if self.rich_enabled:
             self.console.print(
                 Panel(
-                    f"[bold red]{error}[/bold red]",
-                    title="SIVRAJ — Error",
+                    str(error),
+                    title="[bold red]SIVRAJ • Error[/bold red]",
+                    title_align="left",
                     border_style="red",
+                    padding=(1, 2),
                 )
             )
         else:
-            print(
-                f"SIVRAJ: Erro: {error}"
-            )
+            print(f"SIVRAJ: Erro: {error}")
 
     def render_goodbye(self) -> None:
         """Render the exit message."""
-
-        self.ready()
-
         if self.rich_enabled:
             self.console.print(
-                "\n[bold cyan]SIVRAJ[/bold cyan]"
-            )
-            self.console.print(
-                "[dim]Até mais![/dim]"
+                "\n[dim]SIVRAJ encerrado. Até mais![/dim]\n"
             )
         else:
             print("SIVRAJ: Até mais!")
 
-    def separator(self) -> None:
-        """Render a separator."""
+    @staticmethod
+    def _get_response(result: Any) -> str | None:
+        """Extract the response from a command result."""
+        if isinstance(result, dict):
+            response = result.get("response")
 
-        if self.rich_enabled:
-            self.console.print(
-                Rule(style="dim")
-            )
-        else:
-            print("-" * 60)
+            if response is not None:
+                return str(response)
 
-    # ------------------------------------------------------------------
-    # Helpers
-    # ------------------------------------------------------------------
+            return None
 
-    def render_message(
-        self,
-        message: str,
-        *,
-        title: str | None = None,
-    ) -> None:
-        """Render a human-readable message."""
-
-        if not message:
-            return
-
-        if self.rich_enabled:
-            if title:
-                self.console.print(
-                    Panel(
-                        message,
-                        title=title,
-                    )
-                )
-            else:
-                self.console.print(message)
-        else:
-            print(message)
-
-    def is_exit_command(
-        self,
-        prompt: str | None,
-    ) -> bool:
-        """Check whether a prompt requests shutdown."""
-
-        if not prompt:
-            return False
-
-        return (
-            prompt.strip().casefold()
-            in self.EXIT_COMMANDS
-        )
-
-    @property
-    def active(self) -> bool:
-        """Whether the renderer has started."""
-
-        return self._started
-
-    @property
-    def busy(self) -> bool:
-        """Whether the renderer is busy."""
-
-        return (
-            self._thinking
-            or self._listening
-        )
+        return str(result)
 

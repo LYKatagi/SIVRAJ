@@ -15,7 +15,7 @@ from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.rule import Rule
 from rich.text import Text
-
+from sivraj.ui.terminal.dolphin import dolphin
 from sivraj.ui.terminal.rich_renderer import RichRenderer
 from sivraj.ui.terminal.text_renderer import TextRenderer
 
@@ -45,16 +45,17 @@ class Renderer:
         self.console.print()
 
         self.console.print(
-            Panel(
-                Text.assemble(
-                    ("SIVRAJ", "bold cyan"),
-                    "\n",
-                    ("AI Personal Assistant", "dim"),
-                ),
-                border_style="cyan",
-                padding=(1, 2),
-            )
-        )
+    Panel(
+        Text.from_markup(
+            f"""[bold cyan]SIVRAJ[/bold cyan]
+[dim]AI Personal Assistant[/dim]\n
+[cyan]{dolphin}[/cyan]
+[dim]Initializing SIVRAJ...[/dim]"""
+        ),
+        border_style="cyan",
+        padding=(1, 2),
+    )
+)
 
         self.console.print(
             "[dim]Digite 'exit' para sair.[/dim]"
